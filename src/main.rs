@@ -40,20 +40,35 @@ fn main() -> ! {
         ((pin16, mux0), (pin7, mux7)),
         clocks,
     );
-    // Also set up a pin as GPIO, to blink an LED
-    let mut led_gpio = parts.pin11.into_pull_down_output();
+    //LED pins for on-board RGB LED
+    //17 = R, 14 = G, B = 11
+    //schematics for "Pine 64" board: https://files.pine64.org/doc/Pinenut/Pine64%20BL602%20EVB%20Schematic%20ver%201.1.pdf 
+    let mut blue_led_gpio = parts.pin11.into_pull_down_output();
+    let mut green_led_gpio = parts.pin14.into_pull_down_output();
+    let mut red_led_gpio = parts.pin17.into_pull_down_output();
 
     // Create a blocking delay function based on the current cpu frequency
     let mut d = bl602_hal::delay::McycleDelay::new(clocks.sysclk().0);
 
     loop {
         // Toggle the LED on and off once a second. Report LED status over UART
-        led_gpio.set_high().unwrap();
-        serial.write_str("LEDs on\r\n").ok();
+        blue_led_gpio.set_high().unwrap();
+        serial.write_str("BLUE on\r\n").ok();
         d.delay_ms(1000).unwrap();
-
-        led_gpio.set_low().unwrap();
-        serial.write_str("LEDs off\r\n").ok();
+        blue_led_gpio.set_low().unwrap();
+        serial.write_str("BLUE off\r\n").ok();
+        d.delay_ms(1000).unwrap();
+        green_led_gpio.set_high().unwrap();
+        serial.write_str("GREEN on\r\n").ok();
+        d.delay_ms(1000).unwrap();
+        green_led_gpio.set_low().unwrap();
+        serial.write_str("GREEN off\r\n").ok();
+        d.delay_ms(1000).unwrap();
+        red_led_gpio.set_high().unwrap();
+        serial.write_str("RED on\r\n").ok();
+        d.delay_ms(1000).unwrap();
+        red_led_gpio.set_low().unwrap();
+        serial.write_str("RED off\r\n").ok();
         d.delay_ms(1000).unwrap();
     }
 }
